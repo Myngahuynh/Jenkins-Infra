@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    environment {
+        // Set AWS credentials as environment variables
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key-id')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the repository containing your Terraform files
+                git 'https://github.com/Myngahuynh/Jenkins-Infra.git' // Replace with your repo URL
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                script {
+                    // Initialize Terraform
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                script {
+                    // Generate and show an execution plan
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        stage('Confirm') {
+            steps {
+                script {
+                    input message: 'Do you want to apply these changes?', ok: 'Yes, Apply'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    // Apply the changes required to reach the desired state
+                    // Use `-auto-approve` to skip the interactive approval
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Infrastructure created successfully!'
+        }
+        failure {
+            echo 'Failed to create infrastructure.'
+        }
+    }
+}
