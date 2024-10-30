@@ -12,6 +12,7 @@ pipeline {
             steps {
                 // Checkout the repository containing your Terraform files
                 git 'https://github.com/Myngahuynh/Jenkins-Infra.git' // Replace with your repo URL
+                echo 'Stage Checkout stage completed successfully!'
             }
         }
 
@@ -20,6 +21,7 @@ pipeline {
                 script {
                     // Initialize Terraform
                     sh 'terraform init'
+                    echo 'Stage Init stage completed successfully!'
                 }
             }
         }
@@ -29,6 +31,7 @@ pipeline {
                 script {
                     // Generate and show an execution plan
                     sh 'terraform plan'
+                    echo 'Stage plan stage completed successfully!'
                 }
             }
         }
@@ -47,6 +50,7 @@ pipeline {
                     // Apply the changes required to reach the desired state
                     // Use `-auto-approve` to skip the interactive approval
                     sh 'terraform apply -auto-approve'
+                    echo 'Stage Apply stage completed successfully!'
                 }
             }
         }
