@@ -61,14 +61,5 @@ pipeline {
                 }
             }
         }
-    }
-
-    post {
-        success {
-            echo 'Infrastructure created successfully!'
-        }
-        failure {
-            echo 'Failed to create infrastructure.'
-        }
-    }
 }
+
