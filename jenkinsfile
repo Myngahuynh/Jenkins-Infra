@@ -10,8 +10,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // dir('jenkins-infra')
                 // Checkout the repository containing your Terraform files
-                git 'https://github.com/Myngahuynh/Jenkins-Infra.git' // Replace with your repo URL
+                // git 'https://github.com/Myngahuynh/Jenkins-Infra.git' // Replace with your repo URL
                 echo 'Stage Checkout stage completed successfully!'
             }
         }
