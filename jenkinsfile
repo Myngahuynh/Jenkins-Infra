@@ -7,15 +7,21 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key-id')
     }
 
-    stages {
         stage('Checkout') {
             steps {
-                // dir('jenkins-infra')
-                // Checkout the repository containing your Terraform files
-                // git 'https://github.com/Myngahuynh/Jenkins-Infra.git' // Replace with your repo URL
-                echo 'Stage Checkout stage completed successfully!'
+                script {
+                    // Use withCredentials to securely access your GitLab token
+                    withCredentials([string(credentialsId: 'jenkinsinfra', variable: 'GITLAB_TOKEN')]) {
+                        // Checkout the repository using the token
+                        sh '''
+                            git clone https://oauth2:${GITLAB_TOKEN}@gitlab.com/Myngahuynh/Jenkins-Infra.git
+                        '''
+                        echo 'Stage Checkout stage completed successfully!'
+                    }
+                }
             }
         }
+
 
         stage('Terraform Init') {
             steps {
