@@ -78,9 +78,9 @@ pipeline {
                         ]
                     )
 
-                    // Store the confirmation status
-                    currentBuild.description = userInput['Confirm Destroy'] ? 'Confirmed' : 'Rejected'
-                    echo "User selection: ${currentBuild.description}"
+                    // Store the confirmation status in an environment variable
+                    env.TF_DESTROY_CONFIRMATION = userInput['Confirm Destroy'] ? 'confirmed' : 'rejected'
+                    echo "User selection: ${env.TF_DESTROY_CONFIRMATION}"
                 }
             }
         }
@@ -88,7 +88,7 @@ pipeline {
         // Separate stage for confirmation (True)
         stage('Terraform Destroy - Confirmed') {
             when {
-                expression { return currentBuild.description == 'Confirmed' }
+                expression { return env.TF_DESTROY_CONFIRMATION == 'confirmed' }
             }
             steps {
                 script {
@@ -103,7 +103,7 @@ pipeline {
         // Separate stage for rejection (False)
         stage('Terraform Destroy - Rejected') {
             when {
-                expression { return currentBuild.description == 'Rejected' }
+                expression { return env.TF_DESTROY_CONFIRMATION == 'rejected' }
             }
             steps {
                 script {
@@ -113,7 +113,6 @@ pipeline {
             }
         }
     }
-
 
     post {
         success {
