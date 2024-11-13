@@ -66,53 +66,28 @@ pipeline {
             }
         }
 
-        stage('Terraform Destroy - Manual Confirmation') {
+           // New Confirm Destroy stage
+        stage('Confirm Destroy') {
             steps {
                 script {
-                    // Prompt for manual confirmation before destruction
-                    def userInput = input(
-                        id: 'userInput', 
-                        message: 'Are you sure you want to destroy the Terraform-managed resources?',
-                        parameters: [
-                            [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Confirm if you want to delete the resources', name: 'Confirm Destroy']
-                        ]
-                    )
-
-                    // Store the confirmation status in an environment variable
-                    env.TF_DESTROY_CONFIRMATION = userInput['Confirm Destroy'] ? 'confirmed' : 'rejected'
-                    echo "User selection: ${env.TF_DESTROY_CONFIRMATION}"
+                    input message: 'Are you sure you want to destroy all resources?', ok: 'Yes, Destroy'
                 }
             }
         }
 
-        // Separate stage for confirmation (True)
-        stage('Terraform Destroy - Confirmed') {
-            when {
-                expression { return env.TF_DESTROY_CONFIRMATION == 'confirmed' }
-            }
+    // Terraform Destroy stage
+        stage('Terraform Destroy') {
             steps {
                 script {
-                    // Proceed to destroy resources if confirmed
-                    echo 'User confirmed destruction. Proceeding to destroy resources...'
-                    sh 'terraform destroy -auto-approve'  // Destroy all resources in the current state
-                    echo 'Terraform destroy completed!'
+                    // Destroy all the resources managed by Terraform
+                    // WARNING: This will destroy all resources in the current workspace!
+                    sh 'terraform destroy -auto-approve'
+                    echo 'Stage Destroy stage completed successfully!'
                 }
             }
         }
 
-        // Separate stage for rejection (False)
-        stage('Terraform Destroy - Rejected') {
-            when {
-                expression { return env.TF_DESTROY_CONFIRMATION == 'rejected' }
-            }
-            steps {
-                script {
-                    // Skip destruction if rejected
-                    echo 'User rejected destruction. Skipping destroy step.'
-                }
-            }
-        }
-    }
+}
 
     post {
         success {
