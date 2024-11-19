@@ -26,12 +26,23 @@ pipeline {
             }
         }
 
-        stage('Terraform Plan') {
+
+        stage('Terraform Plan for First EC2') {
             steps {
                 script {
-                    // Generate and show an execution plan
-                    sh 'terraform plan'
-                    echo 'Stage plan stage completed successfully!'
+                    // Run terraform plan for the first EC2 instance (hello)
+                    sh 'terraform plan -target=aws_instance.first_EC2'  // Plan only for the hello instance
+                    echo 'Terraform plan for Hello EC2 completed!'
+                }
+            }
+        }
+
+        stage('Terraform Plan for Second EC2') {
+            steps {
+                script {
+                    // Run terraform plan for the second EC2 instance (new_instance)
+                    sh 'terraform plan -target=aws_instance.second_EC2'  // Plan only for the new_instance
+                    echo 'Terraform plan for New EC2 completed!'
                 }
             }
         }
@@ -54,7 +65,29 @@ pipeline {
                 }
             }
         }
-    }
+
+           // New Confirm Destroy stage
+        stage('Confirm Destroy') {
+            steps {
+                script {
+                    input message: 'Are you sure you want to destroy all resources?', ok: 'Yes, Destroy'
+                }
+            }
+        }
+
+    // Terraform Destroy stage
+        stage('Terraform Destroy') {
+            steps {
+                script {
+                    // Destroy all the resources managed by Terraform
+                    // WARNING: This will destroy all resources in the current workspace!
+                    sh 'terraform destroy -auto-approve'
+                    echo 'Stage Destroy stage completed successfully!'
+                }
+            }
+        }
+
+}
 
     post {
         success {
